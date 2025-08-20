@@ -1,68 +1,54 @@
-import marimo
+import matplotlib.pyplot as plt
+import numpy as np
 
-__generated_with = "0.14.17"
-app = marimo.App(width="medium")
+# --- Data ---
+quarters = ['Q1', 'Q2', 'Q3', 'Q4']
+turnover_data = {
+    'Q1': 0.23,
+    'Q2': 2.89,
+    'Q3': 3.44,
+    'Q4': 5.25,
+}
+industry_benchmark = 8
+average_turnover = 2.95
 
-# Cell 1: Import Marimo library for widgets and reactive UI
-@app.cell
-def _():
-    import marimo as mo
-    return (mo,)
+# --- Analysis ---
+turnover_values = list(turnover_data.values())
+quarterly_gap = {q: industry_benchmark - v for q, v in turnover_data.items()}
+average_gap = industry_benchmark - average_turnover
 
-# Cell 2: Create slider widget
-# OUTPUT: slider (used in Cell 3 for dynamic markdown)
-@app.cell
-def _(mo):
-    slider = mo.ui.slider(1, 100)  # Slider between 1 and 100
-    return (slider,)
+# --- Console Output ---
+print("--- Retail Inventory Turnover Analysis ---")
+print(f"Industry Benchmark Target: {industry_benchmark}")
+print("\nQuarterly Turnover:")
+for q, v in turnover_data.items():
+    print(f"  - {q}: {v:.2f} (Gap: {quarterly_gap[q]:.2f})")
+print(f"\nAverage Turnover: {average_turnover:.2f}")
+print(f"Average Gap to Benchmark: {average_gap:.2f}")
 
-# Cell 3: Dynamic markdown based on slider value
-# INPUT: slider from Cell 2
-# OUTPUT: Displays slider value with green dots
-@app.cell
-def _(mo, slider):
-    mo.md(f"{slider} {'🟢' * slider.value}")
-    return
 
-# Cell 4: Dynamic markdown showing variables x and y
-# INPUT: x from Cell 5, y from Cell 6
-@app.cell
-def _(mo, x, y):
-    mo.md(f"Let's find the product of {x} and {y} along with 5")
-    return
+# --- Visualization ---
+fig, ax = plt.subplots(figsize=(10, 6))
 
-# Cell 5: Define variable x
-# OUTPUT: x (used in Cells 4 and 7)
-@app.cell
-def _():
-    x = 8
-    return (x,)
+# Bar chart for quarterly turnover
+bars = ax.bar(quarters, turnover_values, color='skyblue', label='Quarterly Turnover')
 
-# Cell 6: Define variable y
-# OUTPUT: y (used in Cells 4 and 7)
-@app.cell
-def _():
-    y = 10
-    return (y,)
+# Benchmark line
+ax.axhline(y=industry_benchmark, color='r', linestyle='--', linewidth=2, label=f'Industry Benchmark ({industry_benchmark})')
 
-# Cell 7: Compute and print product of x and y multiplied by 5
-# INPUT: x from Cell 5, y from Cell 6
-@app.cell
-def _(x, y):
-    print(x * y * 5)
-    return
+# Add labels and title
+ax.set_ylabel('Inventory Turnover Rate')
+ax.set_xlabel('Quarter')
+ax.set_title('Quarterly Inventory Turnover vs. Industry Benchmark')
+ax.set_ylim(0, industry_benchmark + 1)
+ax.legend()
 
-# Cell 8: Comment with email (as required)
-@app.cell
-def _():
-    # Email is 24f2001293@ds.study.iitm.ac.in
-    return
+# Add data labels on bars
+for bar in bars:
+    yval = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2.0, yval + 0.1, f'{yval:.2f}', ha='center', va='bottom')
 
-# Cell 9: Markdown output showing email
-@app.cell
-def _(mo):
-    mo.md("Email is 24f2001293@ds.study.iitm.ac.in")
-    return
+# Save the figure
+plt.savefig('inventory_turnover.png')
 
-if __name__ == "__main__":
-    app.run()
+print("\nVisualization saved as 'inventory_turnover.png'")
